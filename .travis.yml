@@ -1,7 +1,8 @@
-language: c++
+language: cpp
 
-before-install:
-  - sudo apt-get update
+script:
+  - chmod +x script/travis.sh
+  - script/travis.sh
 
 compiler:
   - clang
