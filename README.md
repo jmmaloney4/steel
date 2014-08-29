@@ -1,4 +1,4 @@
-xnix
+machine
 ==
 
 An Operating System
