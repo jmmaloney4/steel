@@ -29,7 +29,11 @@
 
 #include "types.h"
 
-namespace xnix {
+#define RAMSCREEN 0xB8000
+#define SIZESCREEN 0xFA0
+#define SCREENLIM 0xB8FA0
+
+namespace steel {
 
     class io {
     private:

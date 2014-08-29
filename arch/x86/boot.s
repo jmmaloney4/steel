@@ -31,6 +31,10 @@
 %define MULTIBOOT_HEADER_FLAGS 0x00000003
 %define CHECKSUM -(MULTIBOOT_HEADER_MAGIC + MULTIBOOT_HEADER_FLAGS)
 
+global start
+start:
+    jmp _start
+
 ;-- Multiboot header --
 align 4
 
@@ -45,8 +49,8 @@ global _start
 _start:
     push ebx
 
-    extern kmain
-    call kmain
+    extern _kmain
+    call _kmain
 
 cli
 

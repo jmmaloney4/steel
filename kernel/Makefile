@@ -1,1 +1,1 @@
-OBJS:= kernel/kernel.o
+OBJS:= $(OBJS) kernel/kernel.o

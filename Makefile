@@ -7,8 +7,8 @@ include ./arch/$(ARCH)/Makefile
 CC=clang
 CXX=clang
 
-CFLAGS=-std=c11 -I ./ -I ./include/
-CXXFLAGS=-std=c++11 -I ./ -I ./include/
+CFLAGS=-std=c11 -I ./ -I ./include/ -arch i386
+CXXFLAGS=-std=c++11 -I ./ -I ./include/ -arch i386
 
 LD=ld
 
@@ -17,7 +17,7 @@ ASMFLAGS=-f macho
 
 BIN_DIR=$(pwd)/build
 
-kernel: $(OBJS)
+steel: $(OBJS)
 	$(LD) -o $@ $^
 
 %.o: %.cc
