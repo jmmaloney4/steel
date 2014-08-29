@@ -1,6 +1,6 @@
 #!/bin/sh
 
-if [[ $platform == 'linux' ]]; then
+if which -s apt-get; then
     sudo apt-get update
     sudo apt-get install nasm
 else
@@ -8,4 +8,16 @@ else
     brew install nasm
 fi
 
-make
+function run {
+"$@"
+local status=$?
+if [ $status -ne 0 ]; then
+	echo "$@" Failed With Status $status
+		exit $status
+	else
+		echo $1 Succeeded
+	fi
+	return $status
+}
+
+run make

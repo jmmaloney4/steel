@@ -76,18 +76,18 @@ namespace steel {
 
         /* io class functions **/
         /** output byte */
-        static void outb(u32 ad,u8 v);
+        static void outb(adr ad,u8 v);
         /** output word */
-        static void outw(u32 ad,u16 v);
+        static void outw(adr ad,u16 v);
         /** output word */
-        static void outl(u32 ad,u32 v);
+        static void outl(adr ad,u32 v);
 
         /** input byte */
-        static u8	inb(u32 ad);
+        static u8	inb(adr ad);
         /** input word */
-        static u16	inw(u32 ad);
+        static u16	inw(adr ad);
         /** input word */
-        static u32	inl(u32 ad);
+        static u32	inl(adr ad);
 
         /** put a byte on the console */
         static void putctty(char c);

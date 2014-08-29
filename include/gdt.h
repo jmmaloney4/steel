@@ -24,12 +24,9 @@
 
  ---------------------------------------------------------------------------- */
 
-#include "io.h"
+#ifndef _gdt_h
+#define _gdt_h
 
-char* steel::io::vidmem = (char*)RAMSCREEN;
 
-char* steel::io::real_screen = (char*)RAMSCREEN;
 
-void steel::io::outb(u32 ad,u8 v) {
-    asm("outb %%al, %%dx" :: "d" (ad), "a" (v));
-}
+#endif

@@ -1,6 +1,6 @@
 ; -----------------------------------------------------------------------------
 ;   
-; x86 boot.s
+; x86_64 boot.s
 ;
 ; The MIT License (MIT)
 ;
@@ -26,28 +26,14 @@
 ;
 ; -----------------------------------------------------------------------------
 
-
-%define MULTIBOOT_HEADER_MAGIC 0x1BADB002
-%define MULTIBOOT_HEADER_FLAGS 0x00000003
-%define CHECKSUM -(MULTIBOOT_HEADER_MAGIC + MULTIBOOT_HEADER_FLAGS)
+USE64
 
 global start
+global _start
 start:
     jmp _start
 
-;-- Multiboot header --
-align 4
-
-multiboot_header:
-    dd MULTIBOOT_HEADER_MAGIC
-    dd MULTIBOOT_HEADER_FLAGS
-    dd CHECKSUM
-;--/Multiboot header --
-
-;-- Entry point
-global _start
 _start:
-    push ebx
 
     extern _kmain
     call _kmain
@@ -58,3 +44,6 @@ kend:
     hlt
     jmp kend
 
+times 510-($-$$) db 0           ; fill up the file with zeros
+
+        dw 0AA55h               ; boot sector identifier

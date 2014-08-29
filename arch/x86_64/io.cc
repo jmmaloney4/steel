@@ -24,21 +24,21 @@
 
  ---------------------------------------------------------------------------- */
 
-#ifndef _types_h
-#define _types_h
+#include "io.h"
 
-namespace steel {
-    typedef unsigned char     u8;
-    typedef unsigned short     u16;
-    typedef unsigned int     u32;
-    typedef unsigned long long     u64;
+char* steel::io::vidmem = (char*)RAMSCREEN;
 
-    typedef signed char     s8;
-    typedef signed short     s16;
-    typedef signed int         s32;
-    typedef signed long long    s64;
+char* steel::io::real_screen = (char*)RAMSCREEN;
 
-    typedef u64 adr;
+inline void steel::io::outb(u32 ad,u8 v) {
+    asm("outb %%al, %%dx" :: "d" (ad), "a" (v));
 }
 
-#endif
+inline void steel::io::outw(u32 ad, u16 v) {
+    asm("outw %%ax, %%dx" :: "d" (ad), "a" (v));
+}
+
+inline void steel::io::outl(u32 ad, u32 v) {
+    asm("outw %%eax, %%dx" :: "d" (ad), "a" (v));
+}
+
