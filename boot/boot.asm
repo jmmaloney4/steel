@@ -1,6 +1,4 @@
-; -----------------------------------------------------------------------------
-;   
-; x86_64 boot.s
+ ; -----------------------------------------------------------------------------
 ;
 ; The MIT License (MIT)
 ;
@@ -26,24 +24,28 @@
 ;
 ; -----------------------------------------------------------------------------
 
-USE64
+; -----------------------------------------------------------------------------
+;
+; boot.asm - Steel Bootloader
+;
+; -----------------------------------------------------------------------------
 
-global start
-global _start
+USE16
+; ORG 0x00008000
 start:
-    jmp _start
+    
+    call kinit
 
-_start:
-
-    extern _kmain
-    call _kmain
-
-cli
-
+    ; extern kmain 
+    ; call kmain 
+	
+    cli
 kend:
     hlt
     jmp kend
 
+; Magic Boot Number
 times 510-($-$$) db 0           ; fill up the file with zeros
-
         dw 0AA55h               ; boot sector identifier
+
+%include "boot/init.asm"

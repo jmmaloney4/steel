@@ -24,26 +24,20 @@
 
  ---------------------------------------------------------------------------- */
 
-#include "x86_64.h"
-#include "kernel.h"
+#ifndef steel_kernel_h
+#define steel_kernel_h
 
-extern "C" {
+namespace steel {
 
-    void kmain() {
+    extern "C" {
 
-        kmain();
+        void kpanic(const char* message);
+
+        void exit();
+
+        void klog(const char* message);
         
     }
-
-    void kpanic(const char* message) {
-        steel::exit();
-    }
-
-    void exit() {
-        steel::dint();
-        while (1) {
-            steel::halt();
-        }
-    }
-
 }
+
+#endif

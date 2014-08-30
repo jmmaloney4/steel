@@ -24,8 +24,8 @@
 
  ---------------------------------------------------------------------------- */
 
-#ifndef xnix_io_h
-#define xnix_io_h
+#ifndef steel_io_h
+#define steel_io_h
 
 #include "types.h"
 
@@ -81,13 +81,17 @@ namespace steel {
         static void outw(adr ad,u16 v);
         /** output word */
         static void outl(adr ad,u32 v);
+	/** output quad-word */
+	static void outq(adr ad, u64 v);
 
         /** input byte */
-        static u8	inb(adr ad);
+        static u8 inb(adr ad);
         /** input word */
-        static u16	inw(adr ad);
+        static u16 inw(adr ad);
         /** input word */
-        static u32	inl(adr ad);
+        static u32 inl(adr ad);
+	/** input quad-word */
+	static u64 inq(adr ad);
 
         /** put a byte on the console */
         static void putctty(char c);

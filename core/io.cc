@@ -24,26 +24,50 @@
 
  ---------------------------------------------------------------------------- */
 
-#include "x86_64.h"
-#include "kernel.h"
+#include "io.h"
 
-extern "C" {
+using namespace steel;
 
-    void kmain() {
+char* steel::io::vidmem = (char*)RAMSCREEN;
 
-        kmain();
-        
-    }
+char* steel::io::real_screen = (char*)RAMSCREEN;
 
-    void kpanic(const char* message) {
-        steel::exit();
-    }
+inline void steel::io::outb(adr ad,u8 v) {
+    asm("outb %%al, %%dx" :: "d" (ad), "a" (v));
+}
 
-    void exit() {
-        steel::dint();
-        while (1) {
-            steel::halt();
-        }
-    }
+inline void steel::io::outw(adr ad, u16 v) {
+    asm("outw %%ax, %%dx" :: "d" (ad), "a" (v));
+}
 
+inline void steel::io::outl(adr ad, u32 v) {
+    asm("outw %%eax, %%dx" :: "d" (ad), "a" (v));
+}
+
+inline void steel::io::outq(adr ad, u64 v) {
+    asm("outq %%rax, %%dx" :: "d"(ad), "a"(v));
+}
+
+inline u8 steel::io::inb(adr ad) {
+    u8 v;
+    asm("inb %%dx, %%al" : "=a" (v) : "d" (ad));
+    return v;
+}
+
+inline u16 steel::io::inw(adr ad) {
+    u16 v;
+    asm("inw %%dx, %%al" : "=a" (v) : "d" (ad));
+    return v;
+}
+
+inline u32 steel::io::inl(adr ad) {
+    u32 v;
+    asm("inl %%dx, %%al" : "=a" (v) : "d" (ad));
+    return v;
+}
+
+inline u64 steel::io::inq(adr ad) {
+    u64 v;
+    asm("inq %%dx, %%al" : "=a" (v) : "d" (ad));
+    return v;
 }

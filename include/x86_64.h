@@ -23,3 +23,17 @@
  SOFTWARE.
 
  ---------------------------------------------------------------------------- */
+
+#ifndef _arch_h
+#define _arch_h
+
+namespace steel {
+
+    extern "C" {
+        void halt();
+        void eint();
+        void dint();
+    }
+}
+
+#endif

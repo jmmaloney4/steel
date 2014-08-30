@@ -24,21 +24,19 @@
 
  ---------------------------------------------------------------------------- */
 
-#include "io.h"
+#include "x86_64.h"
 
-char* steel::io::vidmem = (char*)RAMSCREEN;
+extern "C" {
 
-char* steel::io::real_screen = (char*)RAMSCREEN;
+    void halt() {
+        asm("hlt");
+    }
 
-inline void steel::io::outb(u32 ad,u8 v) {
-    asm("outb %%al, %%dx" :: "d" (ad), "a" (v));
+    void eint() {
+        asm("sti");
+    }
+
+    void dint() {
+        asm("cli");
+    }
 }
-
-inline void steel::io::outw(u32 ad, u16 v) {
-    asm("outw %%ax, %%dx" :: "d" (ad), "a" (v));
-}
-
-inline void steel::io::outl(u32 ad, u32 v) {
-    asm("outw %%eax, %%dx" :: "d" (ad), "a" (v));
-}
-
