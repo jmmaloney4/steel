@@ -2,8 +2,8 @@
 ; Because Bootloader Will Just Jump Here
 
 start:
-    extern kmain
+    extern _kmain
 
-    call kmain
+    call _kmain
 
     jmp $
