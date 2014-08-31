@@ -1,25 +1,33 @@
 [bits 16]
 [org 0x7c00]
 
-mov [BOOT_DRIVE], dl    ; Store Boot Drive Info
+start:
 
-mov bp, 0x8000          ; Set Stack At Safe Position
-mov sp, bp              ;
+    mov [BOOT_DRIVE], dl    ; Store Boot Drive Info
 
-;mov bx, msg
-;call print_string_16
+    mov bp, 0xa000          ; Set Stack At Safe Position
+    mov sp, bp              ;
 
-mov bx, [msg_initializing]
-call print_string_16
+    call enableA20          ; enable the A20 gate
 
-call enter_32_bit_pm
+    ; Load Kernel
+    mov dh, 20      ; load 20 segments for out kernel
 
-jmp $   ; hang
+    mov bx, 0x0     ; set es indirectly
+    mov es, bx
+    mov bx, KERNEL_POS     ; (20 x 512) + 1000 is 10,240 and 0x7c00 is 31,744, so we still have some space
 
-msg: db 'Hello, World!', 0x0
+    mov dl, [BOOT_DRIVE] ; set drive to read from
 
-; Boot Drive Variable
+    call disk_load_16   ; read the kernel
+
+    call enter_32_bit_pm
+
+    jmp $   ; hang
+
+
 BOOT_DRIVE: db 0
+KERNEL_POS equ 0x1000
 
 ; load dh number of sectors
 ; buffer at es:bx
@@ -56,18 +64,18 @@ print_string_16:
     mov ah, 0x0e    ; teletype mode
  .loop:
 
-    mov al, [bx]
+    mov al, [bx]    ; load char to print
 
-    cmp al, 0
-    je .done
+    cmp al, 0   ; check if we are done
+    je .done    ;
 
     int 0x10
 
-    jc .error
+    jc .error   ; check for error
 
     add bx, 1   ; increment address of char
 
-    jmp .loop
+    jmp .loop   ; loop
 
  .done:
 
@@ -85,24 +93,24 @@ print_string_16:
 
 enter_32_bit_pm:
 
-    cli     ; disable interupts - no interupt vector table
+    cli     ; disable interupts - no interupt table
 
-    lgdt [gdt_descriptor] ; Load the descriptor table
+    lgdt [GDT32.Ptr] ; Load the descriptor table
 
     mov eax, cr0
     or eax, 00000001b
     mov cr0, eax
 
-    jmp CODE_SEG:protected_mode
+    jmp GDT32.Code:protected_mode ; clear the pipline by doing a far jump
 
 ; GDT - Global Descriptor Table
-gdt_start:
+GDT32:
 
-gdt_null:
-    dd 0x0  ; 8 bytes of zeros
-    dd 0x0  ; each dd (double word) is 4 bytes
+.Null: equ $ - GDT32
+    dq 0x0  ; 8 bytes of zeros
+    dq 0x0  ; each dd (double word) is 4 bytes
 
-gdt_code:
+.Code: equ $ - GDT32
     dw 0xffff   ; Limit - part 1
     dw 0x0      ; Base which is 0
     db 0x0      ; Base - part 2
@@ -111,7 +119,7 @@ gdt_code:
     db 0x0      ; Base - part 3
 
 ; same as gdt_code except for code byte in flags
-gdt_data:
+.Data: equ $ - GDT32
     dw 0xffff   ; Limit - part 1
     dw 0x0      ; Base which is 0
     db 0x0      ; Base - part 2
@@ -119,23 +127,101 @@ gdt_data:
     db 11001111b    ; Flags - part 2 and Limit part 2 xxxx|xxxx
     db 0x0      ; Base - part 3
 
-gdt_end:    ; To calculate the size of the gdt
+.End:    ; To calculate the size of the gdt
 
-gdt_descriptor:
-    dw gdt_end - gdt_start - 1  ; size of GDT
+.Ptr:
+    dw $ - GDT32 - 1  ; size of GDT
 
-    dd gdt_start                ; GDT Refrence
+    dq GDT32          ; GDT Refrence
 
-; Constants About GDT
-CODE_SEG equ gdt_code - gdt_start
-DATA_SEG equ gdt_data - gdt_start
+; Enable the A20 gate
+enableA20:
+	in al, 0x64
+	test al, 0x02
+	jnz enableA20
+	mov al, 0xD1
+	out 0x64, al
+ .check:
+	in al, 0x64
+	test al, 0x02
+	jnz .check
+	mov al, 0xDF
+	out 0x60, al
+
+; -----------------------------------------------------------------------------
+; 32-Bit PROTECTED MODE
 
 [bits 32]
 
 protected_mode:
 
+    call enter_64_bit_lm    ; go into long mode
 
-msg_initializing: db 'Initializing 32-Bit Protected Mode', 0
+    jmp $                   ; hang
+
+enter_64_bit_lm:
+
+    mov ecx, 0xC0000080          ; Set the C-register to 0xC0000080, which is the EFER MSR.
+    rdmsr                        ; Read from the model-specific register.
+    or eax, 1 << 8               ; Set the LM-bit which is the 9th bit (bit 8).
+    wrmsr                        ; Write to the model-specific register.
+
+    mov eax, cr0                 ; Set the A-register to control register 0.
+    or eax, 1 << 31              ; Set the PG-bit, which is the 32nd bit (bit 31).
+    mov cr0, eax                 ; Set control register 0 to the A-register.
+
+    jmp long_mode     ; jump to long mode
+
+; -----------------------------------------------------------------------------
+; 32-Bit LONG MODE
+
+long_mode:
+
+    lgdt [GDT64.Ptr]    ; Load 64-Bit Descriptor Table
+
+    jmp GDT64.Code:long_mode_64
+
+; -----------------------------------------------------------------------------
+; 64-Bit LONG MODE
+
+[bits 64]
+
+; Launch The Kernel
+long_mode_64:
+; Fall Through
+launch_kernel_64:
+    call KERNEL_POS     ; where we loaded our kernel in memory
+
+    jmp $               ; hang
+
+
+GDT64:
+
+ .Null: equ $ - GDT64
+    dq 0x0
+    dq 0x0
+
+ .Code: equ $ - GDT64
+    dw 0x0
+    dw 0x0
+    db 0x0
+    db 10011000b
+    db 00100000b
+    db 0x0
+
+ .Data: equ $ - GDT64
+    dw 0x0
+    dw 0x0
+    db 0x0
+    db 10010000b
+    db 00000000b
+    db 0x0
+
+ .End:
+
+ .Ptr:
+    dw $ - GDT64 - 1
+    dq GDT64
 
 ; Padding and magic number.
 times 510 - ($-$$) db 0
