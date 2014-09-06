@@ -41,18 +41,22 @@ SOFTWARE.
 #define REG_SCREEN_DATA 0x3D5
 
 namespace steel {
-	
-    void outb(uint16_t port, uint8_t value);
-	void outw(uint16_t port, uint16_t value);
-    void outl(uint16_t port, uint32_t value);
-    void outq(uint16_t port, uint64_t value);
-    
-	uint8_t inb(uint16_t port);
-	uint16_t inw(uint16_t port);
-    uint32_t inl(uint16_t port);
-    uint64_t inq(uint16_t port);
-    
-    void putchar(char c, int row, int col, uint8_t attribute);
+	namespace io {
+        
+        typedef uint16_t vbuf_offset_t;
+        
+        void outb(uint16_t port, uint8_t value);
+        void outw(uint16_t port, uint16_t value);
+        void outl(uint16_t port, uint32_t value);
+        void outq(uint16_t port, uint64_t value);
+        
+        uint8_t inb(uint16_t port);
+        uint16_t inw(uint16_t port);
+        uint32_t inl(uint16_t port);
+        uint64_t inq(uint16_t port);
+        
+        void putchar(char c, int row, int col, uint8_t attribute);
+    }
 }
 
 #endif

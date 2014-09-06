@@ -40,7 +40,15 @@ start:
     mov bp, 0xa000          ; Set Stack At Safe Position
     mov sp, bp              ;
 
-    call enableA20          ; enable the A20 gate
+    ;call enableA20          ; enable the A20 gate
+    
+    ; Notify BIOS of our intent to run in 64-bit long mode
+    mov ax, 0xec00
+    mov bl, 2
+    int 0x15
+    
+    mov bx, MSG_INIT
+    call print_string_16
 
     ; Load Kernel
     mov dh, 20      ; load 20 segments for out kernel
@@ -59,7 +67,8 @@ start:
 
 
 BOOT_DRIVE: db 0
-KERNEL_POS equ 0x1000
+KERNEL_POS: equ 0x1000
+MSG_INIT: db 'Initializing...', 0
 
 ; load dh number of sectors
 ; buffer at es:bx
@@ -97,15 +106,12 @@ print_string_16:
  .loop:
 
     mov al, [bx]    ; load char to print
+    add bx, 1       ; increment address of char
 
     cmp al, 0   ; check if we are done
     je .done    ;
 
     int 0x10
-
-    jc .error   ; check for error
-
-    add bx, 1   ; increment address of char
 
     jmp .loop   ; loop
 
@@ -113,15 +119,6 @@ print_string_16:
 
     popa
     ret
-
- .error:
-    mov bx, .error_msg
-    call print_string_16    ; try calling this function again, may not work
-
-    jmp $                   ; hang
-
- .error_msg:
-    db 'Error Printing String'
 
 enter_32_bit_pm:
 

@@ -13,20 +13,21 @@ all: steel
 include boot/Makefile
 include kernel/Makefile
 include core/Makefile
+include include/Makefile
 
 steel: boot/boot.bin kernel.bin
 	cat boot/boot.bin kernel.bin > steel	
 
-kernel.bin: $(OBJS)
+kernel.bin: $(OBJS) $(HEADERS)
 	$(LD) --oformat=binary $(OBJS) -o ./kernel.bin
 
-%.o: %.asm
+%.o: %.asm $(HEADERS)
 	$(ASM) $(ASMFLAGS) -o $@ $<
 
-%.o: %.c
+%.o: %.c $(HEADERS)
 	$(CC) $(CFLAGS) -c $< -o $@
 
-%.o: %.cc
+%.o: %.cc $(HEADERS)
 	$(CXX) $(CXXFLAGS) -c $< -o $@
 
 clean:

@@ -24,33 +24,34 @@ SOFTWARE.
 
  --------------------------------------------------------------------------- */
 
-#ifndef STEEL_TYPES_H
-#define STEEL_TYPES_H
+#include "types.h"
 
 namespace steel {
-        typedef signed char int8_t;
-        typedef signed short int int16_t;
-        typedef signed int int32_t;
-        typedef signed long long int64_t;
-    
-        typedef unsigned char uint8_t;
-        typedef unsigned short int uint16_t;
-        typedef unsigned int uint32_t;
-        typedef unsigned long long uint64_t;
+    namespace gdt {
         
-        typedef uint32_t uint;
+        struct gdt_descriptor {
+            uint16_t limit;
+            uint64_t base;
+        } __attribute__((packed));
         
-        typedef uint64_t ptr_t;
+        struct segment_descriptor {
+            uint64_t limit15_0:16;
+            uint64_t base23_0:24;
+            uint64_t type:4;
+            uint64_t S:1;
+            uint64_t DPL:2;         /* descriptor priority level */
+            uint64_t P:1;           /* present */
+            uint64_t limit19_16:4;
+            uint64_t AVL:1;         /* available for system use*/
+            uint64_t L:1;           /* long mode */
+            uint64_t D_B:1;         /* operation size */
+            uint64_t G:1;           /* granularity*/
+            uint64_t base31_24:40;
+            uint64_t pad:32;
+        } __attribute__((packed));
         
-        #ifndef __cplusplus
-        typedef uint8_t bool;
-        #endif
-        #define true ((bool)1)
-        #define false ((bool)0)
-        #define yes ((bool)1)
-        #define no ((bool)0)
+        typedef gdt_descriptor gdtptr_t;
+        typedef segment_descriptor gdtdes_t;
         
-        #define NULL ((void*)0)
+    }
 }
-
-#endif
